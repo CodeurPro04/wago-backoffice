@@ -153,7 +153,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   });
 
-  const data = await response.json().catch(() => ({}));
+  const rawText = await response.text().catch(() => '');
+  let data: any = {};
+  if (rawText) {
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      data = { raw: rawText };
+    }
+  }
   if (!response.ok) {
     throw new Error(data?.message || `Erreur API (${response.status})`);
   }
